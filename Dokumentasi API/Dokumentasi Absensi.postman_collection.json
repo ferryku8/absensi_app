@@ -1,0 +1,182 @@
+{
+	"info": {
+		"_postman_id": "5b676e47-5355-4f65-a354-f2f060d2ca08",
+		"name": "Dokumentasi Absensi",
+		"description": "Dokumentasi API untuk sinkronisasi data absensi dari mobile ke server",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "44312549",
+		"_collection_link": "https://ferrykurniawan-1100543.postman.co/workspace/11e96162-4765-4d79-848b-67556790f505/collection/44312549-5b676e47-5355-4f65-a354-f2f060d2ca08?action=share&source=collection_link&creator=44312549"
+	},
+	"item": [
+		{
+			"name": "Login Karyawan",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"email\": \"fikry@time.ac.id\",\r\n    \"password\": \"password123\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/auth/login",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"auth",
+						"login"
+					]
+				},
+				"description": "StartFragment\n\nEndpoint ini digunakan untuk melakukan otentikasi karyawan ke dalam sistem. Klien (aplikasi mobile) mengirimkan kredensial berupa email dan password. Jika otentikasi berhasil, server akan mengembalikan respons yang berisi akses token (Bearer Token) dan data profil karyawan. Token ini wajib disimpan di sisi mobile untuk digunakan pada endpoint yang membutuhkan otorisasi.\n\n**Body (JSON):**\n\n- `email` (string, required): Alamat email karyawan yang terdaftar.\n    \n- `password` (string, required): Kata sandi akun karyawan.\n    \n\n**Contoh Penggunaan:**  \nDigunakan pada halaman Login saat aplikasi pertama kali dibuka atau setelah sesi habis.\n\nEndFragment"
+			},
+			"response": [
+				{
+					"name": "Login Karyawan",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"success\": true,\r\n  \"message\": \"Login berhasil\",\r\n  \"data\": {\r\n    \"user_id\": 101,\r\n    \"name\": \"Fikry Wardhana\",\r\n    \"role\": \"staff\",\r\n    \"token\": \"eyJhGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\",\r\n    \"department\": \"Teknik Informatika\"\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"_postman_previewlanguage": "",
+					"header": [],
+					"cookie": [
+						{
+							"expires": "Invalid Date",
+							"domain": "",
+							"path": ""
+						}
+					],
+					"body": ""
+				}
+			]
+		},
+		{
+			"name": "Sync Absensi (Offline)",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "123",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"records\": [\r\n    {\r\n      \"local_id\": 1,\r\n      \"type\": \"IN\",\r\n      \"timestamp\": \"2025-10-20 08:00:00\",\r\n      \"latitude\": 3.5952,\r\n      \"longitude\": 98.6722,\r\n      \"photo_url\": \"https://storage.google.com/absensi/foto1.jpg\"\r\n    }\r\n  ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/attendance/sync",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"attendance",
+						"sync"
+					]
+				},
+				"description": "StartFragment\n\nEndpoint ini berfungsi untuk melakukan sinkronisasi data absensi yang tersimpan secara lokal (offline mode) di perangkat mobile ke database server. Request ini menerima daftar (array) catatan absensi yang mungkin tertumpuk saat perangkat tidak memiliki koneksi internet.\n\n**Header:**\n\n- `Authorization`: Bearer (Token yang didapat dari endpoint Login).\n    \n\n**Body (JSON):**\n\n- `records` (array of objects): Daftar data absensi yang akan di-push ke server.\n    \n    - `local_id` (integer): ID unik data di database lokal (SQLite/Isar) mobile.\n        \n    - `type` (string): Tipe absensi (contoh: \"IN\" untuk masuk, \"OUT\" untuk pulang).\n        \n    - `timestamp` (datetime): Waktu pencatatan absensi (Format: YYYY-MM-DD HH:MM:SS).\n        \n    - `latitude` (double): Koordinat lintang lokasi pengguna.\n        \n    - `longitude` (double): Koordinat bujur lokasi pengguna.\n        \n    - `photo_url` (string): Link atau path foto bukti absensi.\n        \n\n**Catatan:**  \nPastikan aplikasi mobile hanya menghapus data lokal setelah mendapatkan respons sukses (200 OK) dari server untuk mencegah kehilangan data.\n\nEndFragment"
+			},
+			"response": [
+				{
+					"name": "Sync Absensi (Offline)",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"success\": true,\r\n  \"message\": \"Data berhasil disinkronisasi\",\r\n  \"synced_count\": 1\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/attendance/sync",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"attendance",
+								"sync"
+							]
+						}
+					},
+					"_postman_previewlanguage": "",
+					"header": [],
+					"cookie": [
+						{
+							"expires": "Invalid Date",
+							"domain": "",
+							"path": ""
+						}
+					],
+					"body": ""
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": ""
+		}
+	]
+}
